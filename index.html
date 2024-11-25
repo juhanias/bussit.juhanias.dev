@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +8,62 @@
 
     <link rel="stylesheet" href="css/general.css">
     <link rel="stylesheet" href="scripts/leaflet/leaflet.css">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
     <script src="scripts/leaflet/leaflet.js"></script>
-    <script src="scripts/mapping.js"></script>
     <script src="scripts/foli-api.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="scripts/storage.js"></script>
+    <script src="scripts/mapping.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/search.js"></script>
+    <script src="scripts/map-elements.js"></script>
+    <script src="scripts/stop.js"></script>
 </head>
+
 <body>
     <div id="map">
-        
+
+    </div>
+    <button id="searchButton" class="button" onclick="openSearchBoxContainer()">
+        <img src="icons/ic_fluent_search_24_filled.svg" alt="Search icon">
+    </button>
+    <div id="activeSearchContainer" style="display: none;">
+        <div id="searchBox">
+            <img src="icons/ic_fluent_search_24_filled.svg" alt="Search icon" id="activeSearchIcon">
+            <input type="text" id="activeSearchInput" placeholder="Hae linjaa tai pysäkkiä...">    
+        </div>
+        <div id="searchResults">
+            <div id="searchResultCategories">
+                <div class="searchResultCategory">
+                    <div class="searchResultCategoryHeader">BUSSIT</div>
+                    <i style="color: snow;">Tämä ominaisuus ei ole käytössä</i>
+                    <!--
+                    <div id="busSearchResults">
+                        <div class="busSearchResult">
+                            <div class="busLineNumber">18</div>
+                            <div class="busLineDestination">Runosmäki</div>
+                        </div>
+                    </div> -->   
+                </div>
+                <div class="searchResultCategory">
+                    <div class="searchResultCategoryHeader">PYSÄKIT</div>
+                    <div id="stopSearchResults"></div>        
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="stopDisplayContainer" style="display: none;">
+        <div id="stopDisplayHeader">
+            <h2 id="stopDisplayId">
+                1903
+            </h2>
+            <p id="stopDisplayName">
+                Kauppatori A3
+            </p>
+        </div>
     </div>
 </body>
+
 </html>

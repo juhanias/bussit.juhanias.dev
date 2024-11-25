@@ -1,4 +1,7 @@
-html, body {
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&family=Lexend:wght@100..900&display=swap');
+
+html,
+body {
     width: 100%;
     height: 100%;
 
@@ -6,18 +9,217 @@ html, body {
     padding: 0;
 }
 
+* {
+    box-sizing: border-box;
+    font-family: 'Lexend', sans-serif;
+}
+
 #map {
     width: 100%;
     height: 100%;
 }
 
+#searchButton {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+    background-color: #fff;
+    padding-top: 4px;
+    padding-right: 9px;
+    padding-bottom: 4px;
+    padding-left: 9px;
+    border-radius: 7px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#searchButton img {
+    width: 32px;
+    height: 32px;
+}
+
+#activeSearchContainer {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 75%;
+    top: 0px;
+    z-index: 1000;
+
+    background-color: rgba(0, 0, 0, 0.66);
+
+    overflow-y: hidden;
+}
+
+#searchBox {
+    display: flex;
+    margin-top: 15px;
+    margin-left: 15px;
+    gap: 10px;
+}
+
+#searchResults {
+    margin-top: 15px;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#activeSearchIcon {
+    width: 32px;
+    height: 32px;
+
+    margin-top: 4px;
+    margin-right: 9px;
+    margin-bottom: 4px;
+    margin-left: 9px;
+}
+
+#activeSearchInput {
+    background: none;
+    border: none;
+    font-size: 20px;
+
+    color: #fff;
+}
+
+.searchResultCategoryHeader {
+    font-weight: normal;
+    color: snow;
+}
+
+.busSearchResult {
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+}
+
+.busSearchResult .busLineNumber {
+    background-color: #FF983F;
+    width: 100%;
+    height: 100%;
+    max-width: 60px;
+    max-height: 30px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 7px;
+    color: white;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.busSearchResult .busLineDestination,
+.stopSearchResult .stopName {
+    color: snow;
+}
+
+.stopSearchResult {
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+    cursor: pointer;
+}
+
+.stopSearchResult .stopNumber {
+    background-color: #3F8CFF;
+    width: 100%;
+    height: 100%;
+    max-width: 60px;
+    max-height: 30px;
+    padding: 5px;
+    text-align: center;
+    border-radius: 7px;
+    color: white;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#searchResultCategories {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    max-height: 100%;
+}
+
+#stopSearchResults {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 70%;
+    overflow-y: scroll;
+}
+
+.searchResultCategory {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    overflow-y: scroll;
+}
+
+#activeSearchInput:focus-visible {
+    outline: none;
+}
+
+#stopDisplayContainer {
+    position: absolute;
+    bottom: 0;
+    z-index: 1000;
+
+    background-color: rgba(0, 0, 0, 0.66);
+    width: 100%;
+    height: 33%;
+    padding: 15px;
+    padding-left: 25px;
+    
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 15px 15px 0 0;
+}
+
+#stopDisplayHeader * {
+    margin: 0;
+    padding: 0;
+    color: snow;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#stopDisplayId {
+    min-width: 11%;
+}
+#stopDisplayHeader {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.button {
+    border: none;
+    background: rgba(0, 0, 0, 0.5) !important;
+    cursor: pointer;
+}
+
 .leaflet-marker-icon,
 .leaflet-popup,
 .leaflet-marker-shadow,
-.leaflet-popup-content-wrapper  {
+.leaflet-popup-content-wrapper {
     transition: all 0.3s;
 }
 
 .leaflet-tile {
-    filter: brightness(0.8) saturate(2.0);
+    filter: saturate(2.0);
+}
+
+.leaflet-popup-tip,
+.leaflet-popup-content-wrapper {
+    background: rgba(0, 0, 0, 0.66) !important;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 7px;
+}
+
+.leaflet-popup-content-wrapper * {
+    color: snow;
 }
