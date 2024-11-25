@@ -82,10 +82,12 @@ $(document).ready(function () {
         console.log("[search] Selected stop:", stop);
 
         // Center the map to the selected stop
-        map.setView([stop.stop_lat, stop.stop_lon], 15);
         map.setView([stop.stop_lat, stop.stop_lon], 17);
 
         // Close the search box
         closeSearchBoxContainer();
+
+        // Open the stop display
+        openStopDisplay(stopId);
     });
 });

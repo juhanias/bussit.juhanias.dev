@@ -10,3 +10,9 @@ async function getStops() {
   return fetch(`https://data.foli.fi/gtfs/v0/${hardCodedLatestDataPackage}/stops`)
     .then(response => response.json())
 }
+
+async function getStopLiveDetails(stopId) {
+  console.debug("[getStopLiveDetails] Fetching stop live details from API for stop ID:", stopId);
+  return fetch(`https://data.foli.fi/siri/sm/${stopId}`)
+    .then(response => response.json())
+}

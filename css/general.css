@@ -161,6 +161,28 @@ body {
     outline: none;
 }
 
+#alertContainer {
+    position: absolute;
+    bottom: 33%;
+    z-index: 1000;
+
+    background-color: rgba(129, 23, 23, 0.66);
+    width: 95%;
+    margin: 2.5%;
+    padding: 2.5%;
+    border-radius: 15px;
+}
+
+#alertContainer * {
+    color: snow;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#alertContainer h2,
+#alertContainer p {
+    margin: 5px;
+}
+
 #stopDisplayContainer {
     position: absolute;
     bottom: 0;
@@ -221,5 +243,64 @@ body {
 }
 
 .leaflet-popup-content-wrapper * {
+    color: snow;
+}
+
+#stopLines {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    gap: 15px;
+    overflow-y: scroll;
+}
+
+.stopLine {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stopLineId {
+    background-color: #FF983F;
+    width: 100%;
+    max-width: 60px;
+    padding: 15px;
+    text-align: center;
+    border-radius: 7px;
+    color: white;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.stopLineMetaData {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stopLineBadges {
+    display: flex;
+    gap: 10px;
+}
+
+.stopLineDestination {
+    font-size: 17px;
+}
+
+.stopLineBadge {
+    padding: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    background-color: rgba(0, 0, 0, 0.33);
+    border-radius: 7px;
+    font-size: 15px;
+    color: snow;
+}
+
+.stopLineBadge.late {
+    color: #ea7474 !important;
+}
+
+.stopLineDestination {
     color: snow;
 }
