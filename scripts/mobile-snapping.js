@@ -11,7 +11,3 @@ $(document).ready(function () {
     swipeResizer.init();
 });
 
-$(document).on('touchmove', function (e) {
-    // Prevent the default scroll behavior when at the top
-    e.preventDefault();
-});
