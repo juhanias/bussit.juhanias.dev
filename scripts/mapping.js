@@ -267,14 +267,3 @@ function setStopDisplayAsRegular() {
         $('#stopDisplayContainer').css('transition', 'none');
     }, 500);
 }
-
-
-$(document).on('click', '#stopDisplayHeader', function (event) {
-    if ($('#stopDisplayContainer').data('collapsed')) {
-        setStopDisplayAsRegular();
-    }
-
-    else {
-        setStopDisplayAsCollapsed();
-    }
-});
