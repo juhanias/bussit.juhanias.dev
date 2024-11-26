@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&family=Lexend:wght@100..900&display=swap');
 
+:root {
+    --global-top-margin: 50px;
+}
+
 html,
 body {
     width: 100%;
@@ -16,12 +20,12 @@ body {
 
 #map {
     width: 100%;
-    height: 100%;
+    height: calc(100% - var(--global-top-margin));
 }
 
 #searchButton {
     position: absolute;
-    top: 15px;
+    top: calc(15px + var(--global-top-margin));
     left: 15px;
     z-index: 1000;
     background-color: #fff;
@@ -45,8 +49,13 @@ body {
     padding-left: 9px;
     border-radius: 7px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+    transition: all 0.50s;
 }
 
+.vehicleMarker {
+    transition: all 0.50s;
+}
 .geoLocationMarker img {
     background-color: #5367d9;
     padding: 4px !important;
@@ -66,7 +75,7 @@ body {
     flex-direction: column;
     width: 100%;
     height: 75%;
-    top: 0px;
+    top: calc(0px + var(--global-top-margin));
     z-index: 1000;
 
     background-color: rgba(0, 0, 0, 0.66);

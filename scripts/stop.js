@@ -14,6 +14,7 @@ function closeStopDisplay() {
     hideStopAlertContainer();
     removeStopActiveSelection();
     $('#stopDisplayContainer').slideUp();
+    $('#locateMeButton').css('bottom', '15px');
 }
 
 function setStopAlertDetails(alertDetails) {
@@ -28,7 +29,9 @@ function openStopDisplay(stopId) {
     $('#stopDisplayId').text(stopData.stop_code);
     $('#stopDisplayName').text(stopData.stop_name);
     $('#displayToggleFavoriteButton').attr('src', `icons/ic_fluent_star_24_regular${isStopFavorite(stopId) ? '_filled' : ''}.svg`);
-    $('#stopDisplayContainer').slideDown();
+    $('#stopDisplayContainer').slideDown(250, function () {
+        $('#locateMeButton').css('bottom', 'calc(45% + 25px)');
+    });
 
     getStopLiveDetails(stopId)
         .then(stopLiveDetails => {
@@ -86,7 +89,7 @@ function openStopDisplay(stopId) {
                 const isLate = estimatedArrivalMinutes < 0;
 
                 $('#stopLines').append(`
-                    <div class="stopLine">
+                    <div class="stopLine" data-lineref="${element.lineref}" data-tripref="${element.__tripref}">
                         <div class="stopLineId">${element.lineref}</div>
                         <div class="stopLineMetaData">
                             <div class="stopLineDestination">${element.destinationdisplay}</div>
@@ -189,5 +192,38 @@ $(document).on('click', '.stopLineBadge', function (event) {
 });
 
 $(document).on('click', '.stopLine', function (event) {
-    closeStopDisplay();
+    const tripRef = $(this).data('tripref');
+    const lineRef = $(this).data('lineref');
+    
+    getTripDetails(tripRef)
+        .then(tripDetails => {
+            const shapeRef = tripDetails[0].shape_id;
+
+            getTripShape(shapeRef)
+                .then(tripShape => {
+                    const polyline = L.polyline(tripShape.map(point => [point.lat, point.lon]), { color: '#fc9803' }).addTo(map);
+                    map.fitBounds(polyline.getBounds());
+                });
+
+            getAllVehiclesForPublishedLine(lineRef).forEach(vehicle => {
+                console.log("[stop] Vehicle:", vehicle);
+                const marker = L.marker([vehicle.latitude, vehicle.longitude], {
+                    icon: new L.Icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41],
+                        className: 'vehicleMarker',
+                      }),
+                      vehicleRef: vehicle.vehicleref  
+                })
+
+                marker.addTo(map);
+
+                liveVehicleMarkers.push(marker);    
+                inSpecificRouteView = true;            
+            });
+        });
 });
