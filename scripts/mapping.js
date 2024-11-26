@@ -147,7 +147,6 @@ function updateStopMarkersOnMap() {
     // Definitely don't show stops if the map is zoomed out too far. Guaranteed crash of browser
     if (map.getZoom() < 15) {
         deleteStopMarkersFromMap();
-        return
     }
 
     if (inSpecificRouteView) {
@@ -166,6 +165,10 @@ function updateStopMarkersOnMap() {
         .forEach(stopId => {
             // Check if the stop already has a marker
             if (findMarkerByCoordinates(stops[stopId].stop_lat, stops[stopId].stop_lon)) {
+                return;
+            }
+
+            if (map.getZoom() < 15 && !isStopFavorite(stopId)) {
                 return;
             }
             

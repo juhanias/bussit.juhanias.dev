@@ -52,7 +52,7 @@ class SwipeResizer {
 
     onTouchEnd() {
         // Disable transition during the snap to a defined point
-        this.element.style.transition = 'none';
+        this.element.style.transition = 'height 0.3s';
 
         // Snap to the closest snap point after the swipe ends
         const snapHeight = this.getClosestSnapPoint(this.currentHeight);
