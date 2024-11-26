@@ -245,3 +245,36 @@ setInterval(() => {
     });
 }, 4000);
 */
+
+function setStopDisplayAsCollapsed() {
+    $('#stopDisplayContainer').css('transition', 'height 0.5s');
+    $('#stopDisplayContainer').css('height', '16%');
+    $('#stopDisplayContainer').data('collapsed', true);
+    $('#locateMeButton').css('bottom', '17%');
+
+    setTimeout(() => {
+        $('#stopDisplayContainer').css('transition', 'none');
+    }, 500);
+}
+
+function setStopDisplayAsRegular() {
+    $('#stopDisplayContainer').css('transition', 'height 0.5s');
+    $('#stopDisplayContainer').css('height', '45%');
+    $('#stopDisplayContainer').data('collapsed', false);
+    $('#locateMeButton').css('bottom', '46%');
+
+    setTimeout(() => {
+        $('#stopDisplayContainer').css('transition', 'none');
+    }, 500);
+}
+
+
+$(document).on('click', '#stopDisplayHeader', function (event) {
+    if ($('#stopDisplayContainer').data('collapsed')) {
+        setStopDisplayAsRegular();
+    }
+
+    else {
+        setStopDisplayAsCollapsed();
+    }
+});

@@ -11,8 +11,9 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
     integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
     <script src="libs/leaflet/leaflet.js"></script>
+    <script src="scripts/utils/snap-resizer.js"></script>
+    <script src="scripts/mobile-snapping.js"></script>
     <script src="scripts/live-vehicles.js"></script>
     <script src="scripts/geolocator.js"></script>
     <script src="scripts/favorites.js"></script>
@@ -78,7 +79,7 @@
             </div>
             <img src="icons/ic_fluent_star_24_regular.svg" alt="Add to favorites" id="displayToggleFavoriteButton" onclick="toggleFavoriteStop()">
         </div>
-        <div id="stopLines"></div>
+        <div id="stopLines" class="scrollable"></div>
     </div>
 </body>
 
