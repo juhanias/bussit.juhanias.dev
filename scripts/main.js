@@ -8,4 +8,6 @@ window.addEventListener("load", function(event) {
                 setStopsInLocalStorageLastUpdated();
             });
     }
+
+    favoriteStops = getFavoriteStopsFromStorage();
 });

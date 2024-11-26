@@ -24,3 +24,11 @@ function getStopById(stopId) {
     const stops = getStopsFromLocalStorage();
     return stops[stopId];
 }
+
+function saveFavoritesToLocalStorage() {
+    localStorage.setItem('favoriteStops', JSON.stringify(favoriteStops));
+}
+
+function getFavoriteStopsFromStorage() {
+    return JSON.parse(localStorage.getItem('favoriteStops')) || [];
+}

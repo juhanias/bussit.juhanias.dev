@@ -13,13 +13,16 @@
     integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <script src="scripts/leaflet/leaflet.js"></script>
+    <script src="scripts/geolocator.js"></script>
+    <script src="scripts/favorites.js"></script>
     <script src="scripts/foli-api.js"></script>
     <script src="scripts/storage.js"></script>
-    <script src="scripts/mapping.js"></script>
     <script src="scripts/main.js"></script>
+    <script src="scripts/mapping.js"></script>
     <script src="scripts/search.js"></script>
     <script src="scripts/map-elements.js"></script>
     <script src="scripts/stop.js"></script>
+    <script src="scripts/shapes.js"></script>
 </head>
 
 <body>
@@ -29,6 +32,10 @@
     <button id="searchButton" class="button" onclick="openSearchBoxContainer()">
         <img src="icons/ic_fluent_search_24_filled.svg" alt="Search icon">
     </button>
+    <button id="locateMeButton" class="button">
+        <img src="icons/ic_fluent_my_location_24_filled.svg" alt="Locate me icon">
+    </button>
+
     <div id="activeSearchContainer" style="display: none;">
         <div id="searchBox">
             <img src="icons/ic_fluent_search_24_filled.svg" alt="Search icon" id="activeSearchIcon">
@@ -61,12 +68,11 @@
 
     <div id="stopDisplayContainer" style="display: none;">
         <div id="stopDisplayHeader">
-            <h2 id="stopDisplayId">
-                1903
-            </h2>
-            <p id="stopDisplayName">
-                Kauppatori A3
-            </p>
+            <div style="display: flex; align-items: center; gap: 25px;">
+                <h2 id="stopDisplayId"></h2>
+                <p id="stopDisplayName"></p>    
+            </div>
+            <img src="icons/ic_fluent_star_24_regular.svg" alt="Add to favorites" id="displayToggleFavoriteButton" onclick="toggleFavoriteStop()">
         </div>
         <div id="stopLines"></div>
     </div>

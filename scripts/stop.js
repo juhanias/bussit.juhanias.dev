@@ -1,3 +1,5 @@
+var activelySelectedStop = null;
+
 function hideStopAlertContainer() {
     $('#alertTitle').text();
     $('#alertMessage').text();
@@ -10,6 +12,7 @@ function showStopAlertDetails() {
 
 function closeStopDisplay() {
     hideStopAlertContainer();
+    removeStopActiveSelection();
     $('#stopDisplayContainer').slideUp();
 }
 
@@ -24,6 +27,7 @@ function openStopDisplay(stopId) {
     
     $('#stopDisplayId').text(stopData.stop_code);
     $('#stopDisplayName').text(stopData.stop_name);
+    $('#displayToggleFavoriteButton').attr('src', `icons/ic_fluent_star_24_regular${isStopFavorite(stopId) ? '_filled' : ''}.svg`);
     $('#stopDisplayContainer').slideDown();
 
     getStopLiveDetails(stopId)
@@ -52,7 +56,7 @@ function openStopDisplay(stopId) {
             if (stopLiveDetails.result.length === 0) {
                 $('#stopLines').empty();
                 $('#stopLines').append(`
-                    <i style="color: snow">Ei lähteviä linjoja.</i>
+                    <i style="color: snow">Ei lähteviä linjoja seuraavien tuntien aikana.</i>
                 `);
                 return;
             } else {
@@ -87,11 +91,11 @@ function openStopDisplay(stopId) {
                         <div class="stopLineMetaData">
                             <div class="stopLineDestination">${element.destinationdisplay}</div>
                             <div class="stopLineBadges">
-                                <span class="stopLineBadge ${isLate ? 'late' : ''}">
+                                <span class="stopLineBadge ${isLate ? 'late' : ''}" data-estimated-departure="${estimatedArrivalDate.getTime()}" data-display-type="relative" data-indicator="next">
                                     ${isLate ? '' : '~'}${estimatedArrivalMinutes}m
                                 </span>
                                 ${nextEstimatedArrivalMinutes ? `
-                                <span class="stopLineBadge">
+                                <span class="stopLineBadge" data-next-estimated-departure="${nextEstimatedArrivalDate.getTime()}" data-display-type="relative" data-indicator="after-next">
                                     Seuraava: ~${nextEstimatedArrivalMinutes}m
                                 </span>` : ''}
                             </div>
@@ -102,3 +106,88 @@ function openStopDisplay(stopId) {
         }
     );
 }
+
+function getStopIdCurrentlyInFocus() {
+    return $('#stopDisplayId').text();
+}
+
+function markStopAsActivelySelected(stopId) {;
+    const marker = findMarkerByCoordinates(getStopById(stopId).stop_lat, getStopById(stopId).stop_lon);
+    marker.setIcon(new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    }));
+
+    activelySelectedStop = stopId;
+}
+
+function removeStopActiveSelection() {
+    const marker = findMarkerByStopId(activelySelectedStop);
+
+    if (!marker) {
+        return;
+    }
+
+    marker.setIcon(new L.Icon({
+        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${isStopFavorite(activelySelectedStop) ? 'gold' : 'blue'}.png`,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    }));
+}
+
+$(document).on('click', '.stopLineBadge', function (event) {
+    event.stopPropagation();
+    // Iterate over all elements with the class .stopLineBadge
+    $('.stopLineBadge').each(function (index, element) {
+        var $element = $(element); // Cache the jQuery object
+        var type = $element.data('indicator');
+        var displayType = $element.data('display-type');
+
+        var estimatedDeparture = $element.data('estimated-departure');
+        var nextEstimatedDeparture = $element.data('next-estimated-departure');
+
+        var now = new Date().getTime();
+
+        var timeRemaining = estimatedDeparture - now;
+        var nextTimeRemaining = nextEstimatedDeparture - now;
+
+        var newText;
+
+        if (displayType === 'relative') {
+            // Change to absolute
+            $element.data('display-type', 'absolute');
+
+            if (type === 'next') {
+                newText = new Date(estimatedDeparture).toLocaleTimeString();
+            } else if (type === 'after-next') {
+                newText = 'Seuraava: ' + new Date(nextEstimatedDeparture).toLocaleTimeString();
+            }
+        } else if (displayType === 'absolute') {
+            // Change to relative
+            $element.data('display-type', 'relative');
+
+            if (type === 'next') {
+                newText = '~' + Math.floor(timeRemaining / 60000) + 'm';
+            } else if (type === 'after-next') {
+                newText = 'Seuraava: ~' + Math.floor(nextTimeRemaining / 60000) + 'm';
+            }
+        }
+
+        // Animate the transition
+        $element.fadeOut(200, function () {
+            $element.text(newText); // Update text after fade out
+            $element.fadeIn(200);  // Fade back in with new text
+        });
+    });
+});
+
+$(document).on('click', '.stopLine', function (event) {
+    closeStopDisplay();
+});

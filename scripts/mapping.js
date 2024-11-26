@@ -31,12 +31,12 @@ window.addEventListener("load", function(event) {
     updateStopMarkersOnMap();
 
     // Listen for zoom changes
-    map.on('zoom', function () {
+    map.on('zoomend', function () {
         const zoomLevel = map.getZoom();
         updateStopMarkersOnMap();
     });
 
-    map.on('move', function () {
+    map.on('moveend', function () {
         updateStopMarkersOnMap();
     });
 
@@ -153,6 +153,10 @@ function findMarkerByCoordinates(lat, lon) {
     return stopMarkers.find(marker => marker.getLatLng().lat === lat && marker.getLatLng().lng === lon);
 }
 
+function findMarkerByStopId(stopId) {
+    return stopMarkers.find(marker => marker.options.stopId === stopId);
+}
+
 function updateStopMarkersOnMap() {
     // Definitely don't show stops if the map is zoomed out too far. Guaranteed crash of browser
     if (map.getZoom() < 15) {
@@ -174,15 +178,32 @@ function updateStopMarkersOnMap() {
             if (findMarkerByCoordinates(stops[stopId].stop_lat, stops[stopId].stop_lon)) {
                 return;
             }
+            
+            const additionalData = { stopId: stopId };
+            if (isStopFavorite(stopId)) {
+                additionalData['icon'] = new L.Icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+            }
 
             const stop = stops[stopId];
-            const stopMarker = L.marker([stop.stop_lat, stop.stop_lon], { stopId: stopId })
-                .addTo(map)
-                .bindPopup(stop.stop_name);
+            const stopMarker = L.marker([stop.stop_lat, stop.stop_lon], additionalData)
+                .addTo(map);
 
             stopMarker.on('click', function (event) {
                 const stopId = event.target.options.stopId;
+                
                 onStopMarkerClick(stopId);
+
+                // pan the map to the stop
+                map.panTo([stop.stop_lat, stop.stop_lon]);
+
+                markStopAsActivelySelected(stopId);
             });
 
             stopMarkers.push(stopMarker);
