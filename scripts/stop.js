@@ -11,6 +11,8 @@ function showStopAlertDetails() {
 }
 
 function closeStopDisplay() {
+    $('#stopDisplayContainer').css('transition', 'none');
+
     hideStopAlertContainer();
     removeStopActiveSelection();
     $('#stopDisplayContainer').slideUp();
