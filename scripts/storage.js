@@ -4,12 +4,18 @@ function areStopsInLocalStorage() {
     return localStorageValue !== null;
 }
 
+function areStopsOutdated() {
+    const lastUpdated = getStopsInLocalStorageLastUpdated();
+    console.debug("[areStopsOutdated] Last updated:", lastUpdated);
+    return lastUpdated !== latestDataPackage;
+}
+
 function getStopsInLocalStorageLastUpdated() {
     return localStorage.getItem('stopsLastUpdated');
 }
 
 function setStopsInLocalStorageLastUpdated() {
-    localStorage.setItem('stopsLastUpdated', new Date().toISOString());
+    localStorage.setItem('stopsLastUpdated', latestDataPackage);
 }
 
 function getStopsFromLocalStorage() {

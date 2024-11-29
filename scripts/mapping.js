@@ -168,7 +168,7 @@ function updateStopMarkersOnMap() {
                 return;
             }
 
-            if (map.getZoom() < 15 && !isStopFavorite(stopId)) {
+            if (map.getZoom() < 14 && !isStopFavorite(stopId)) {
                 return;
             }
             

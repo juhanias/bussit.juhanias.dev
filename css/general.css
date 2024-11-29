@@ -11,12 +11,29 @@ body {
 
     margin: 0;
     padding: 0;
+
+    background-color: #1a1a1a;
 }
 
 * {
     box-sizing: border-box;
     font-family: 'Lexend', sans-serif;
     overscroll-behavior: none !important;
+}
+
+@keyframes fadeBackground {
+    0% {
+      background: rgba(0, 0, 0, 0.5); /* Starting color */
+      filter: opacity(1);
+    }
+    50% {
+      background: rgba(112, 112, 112, 0.5); /* Ending color (same as start) */
+      filter: opacity(0.5);
+    }
+    100% {
+        background: rgba(0, 0, 0, 0.5); /* Starting color */
+        filter: opacity(1);
+    }
 }
 
 #map {
@@ -29,7 +46,6 @@ body {
     top: calc(15px + var(--global-top-margin));
     left: 15px;
     z-index: 1000;
-    background-color: #fff;
     padding-top: 4px;
     padding-right: 9px;
     padding-bottom: 4px;
@@ -43,7 +59,6 @@ body {
     bottom: 15px;
     right: 15px;
     z-index: 1000;
-    background-color: #fff;
     padding-top: 4px;
     padding-right: 9px;
     padding-bottom: 4px;
@@ -261,8 +276,16 @@ body {
 
 .button {
     border: none;
-    background: rgba(0, 0, 0, 0.5) !important;
+    background: rgba(0, 0, 0, 0.5);
     cursor: pointer;
+}
+
+.button.loading {
+    animation: fadeBackground 2s infinite;
+}
+
+.button.error {
+    background-color: rgba(180, 19, 19, 0.5);
 }
 
 /* 

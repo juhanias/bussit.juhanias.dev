@@ -35,9 +35,49 @@ function openStopDisplay(stopId) {
         $('#locateMeButton').css('bottom', 'calc(45% + 25px)');
     });
 
+    updateStopDisplayScheduleInformation(stopId);
+}
+
+function getStopIdCurrentlyInFocus() {
+    return $('#stopDisplayId').text();
+}
+
+function markStopAsActivelySelected(stopId) {;
+    const marker = findMarkerByCoordinates(getStopById(stopId).stop_lat, getStopById(stopId).stop_lon);
+    marker.setIcon(new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    }));
+
+    activelySelectedStop = stopId;
+}
+
+function removeStopActiveSelection() {
+    const marker = findMarkerByStopId(activelySelectedStop);
+
+    if (!marker) {
+        return;
+    }
+
+    marker.setIcon(new L.Icon({
+        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${isStopFavorite(activelySelectedStop) ? 'gold' : 'blue'}.png`,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    }));
+}
+
+function updateStopDisplayScheduleInformation(stopId) {
     getStopLiveDetails(stopId)
         .then(stopLiveDetails => {
             console.log("[stop] Live details for stop:", stopLiveDetails);
+
             $('#stopLines').empty();
             var placedLines = [];
         
@@ -53,7 +93,6 @@ function openStopDisplay(stopId) {
                 hideStopAlertContainer();
             }
 
-            
             $('#stopLines').append(`
                 <i style="color: snow">Ladataan...</i>
             `);
@@ -90,8 +129,11 @@ function openStopDisplay(stopId) {
 
                 const isLate = estimatedArrivalMinutes < 0;
 
+                // Some lines don't include this, others do?
+                const tripRef = stopLiveDetails.result.find(line => line.__tripref !== undefined).__tripref;
+
                 $('#stopLines').append(`
-                    <div class="stopLine" data-lineref="${element.lineref}" data-tripref="${element.__tripref}">
+                    <div class="stopLine" data-lineref="${element.lineref}" data-tripref="${tripRef}">
                         <div class="stopLineId">${element.lineref}</div>
                         <div class="stopLineMetaData">
                             <div class="stopLineDestination">${element.destinationdisplay}</div>
@@ -110,41 +152,6 @@ function openStopDisplay(stopId) {
             });
         }
     );
-}
-
-function getStopIdCurrentlyInFocus() {
-    return $('#stopDisplayId').text();
-}
-
-function markStopAsActivelySelected(stopId) {;
-    const marker = findMarkerByCoordinates(getStopById(stopId).stop_lat, getStopById(stopId).stop_lon);
-    marker.setIcon(new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    }));
-
-    activelySelectedStop = stopId;
-}
-
-function removeStopActiveSelection() {
-    const marker = findMarkerByStopId(activelySelectedStop);
-
-    if (!marker) {
-        return;
-    }
-
-    marker.setIcon(new L.Icon({
-        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${isStopFavorite(activelySelectedStop) ? 'gold' : 'blue'}.png`,
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-    }));
 }
 
 $(document).on('click', '.stopLineBadge', function (event) {
@@ -199,6 +206,7 @@ $(document).on('click', '.stopLine', function (event) {
     
     getTripDetails(tripRef)
         .then(tripDetails => {
+            console.debug("[stop] Trip details:", tripDetails);
             const shapeRef = tripDetails[0].shape_id;
 
             getTripShape(shapeRef)
@@ -229,3 +237,10 @@ $(document).on('click', '.stopLine', function (event) {
             });
         });
 });
+
+setInterval(() => {
+    // Update the stop display schedules every 30 seconds if a stop is actively selected
+    if (activelySelectedStop) {
+        updateStopDisplayScheduleInformation(activelySelectedStop);
+    }
+}, 30 * 1000);
