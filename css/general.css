@@ -299,6 +299,16 @@ body {
 
 .leaflet-tile {
     filter: saturate(2.0);
+    /* filter: invert(90%) brightness(1.5) contrast(1.25) hue-rotate(180deg) saturate(0.6) */
+}
+
+.leaflet-container {
+    background: #202020 !important; /* dark background to blend with tiles */
+}
+
+/* https://github.com/Leaflet/Leaflet/issues/3575#issuecomment-203821877 */
+.leaflet-tile-container img {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .leaflet-popup-tip,
