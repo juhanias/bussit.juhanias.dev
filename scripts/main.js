@@ -17,6 +17,9 @@ window.addEventListener("load", async function(event) {
             .then(stops => {
                 setStopsInLocalStorage(stops);
                 setStopsInLocalStorageLastUpdated();
+
+                // todo prolly don't do this
+                this.window.location.reload();
             });
     } else if (areStopsOutdated()) {
         getStops()
