@@ -324,12 +324,18 @@ body {
     color: snow;
 }
 
+#stopDisplayHeaderMainInfo a {
+    color: snow;
+}
+
 #stopLines {
     display: flex;
     flex-direction: column;
     margin-top: 20px;
     gap: 15px;
     overflow-y: scroll;
+
+    transition: all 0.20s;
 }
 
 .stopLine {

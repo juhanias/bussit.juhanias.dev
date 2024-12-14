@@ -5,11 +5,13 @@ class SwipeResizer {
         this.minHeight = options.minHeight || 100; // Minimum height
         this.maxHeight = options.maxHeight || window.innerHeight; // Maximum height
         this.transitionDuration = options.transitionDuration || '0.3s'; // Transition speed
+        this.moveThreshold = options.moveThreshold || 10; // Minimum movement (in pixels) to detect a swipe
 
         // Initial properties
         this.startY = 0;
         this.startHeight = 0;
         this.currentHeight = 0;
+        this.isDragging = false;
 
         // Apply initial transition to element (but it will be disabled during snap)
         this.element.style.transition = 'none';
@@ -30,18 +32,27 @@ class SwipeResizer {
         if (this.isTouchOnResizableElement(e.target)) {
             this.startY = e.touches[0].clientY;
             this.startHeight = this.element.offsetHeight;
-            // Enable transition while dragging
-            this.element.style.transition = `height ${this.transitionDuration} ease`;
+            this.isDragging = false; // Reset dragging state
+            // Disable transition while dragging
+            this.element.style.transition = 'none';
         }
     }
 
     onTouchMove(e) {
-        if (this.isTouchOnResizableElement(e.target)) {
+        if (!this.isTouchOnResizableElement(e.target)) return;
+
+        const currentY = e.touches[0].clientY;
+        const diffY = this.startY - currentY;
+
+        // Detect if movement exceeds the threshold to start dragging
+        if (!this.isDragging && Math.abs(diffY) > this.moveThreshold) {
+            this.isDragging = true; // Start resizing
+        }
+
+        if (this.isDragging) {
             // Prevent default behavior for resizing container only
             e.preventDefault();
 
-            const currentY = e.touches[0].clientY;
-            const diffY = this.startY - currentY;
             this.currentHeight = this.startHeight + diffY;
 
             // Clamp height within the min/max range
@@ -51,15 +62,17 @@ class SwipeResizer {
     }
 
     onTouchEnd() {
-        // Disable transition during the snap to a defined point
-        this.element.style.transition = 'height 0.3s';
+        if (this.isDragging) {
+            // Disable transition during the snap to a defined point
+            this.element.style.transition = `height ${this.transitionDuration} ease`;
 
-        // Snap to the closest snap point after the swipe ends
-        const snapHeight = this.getClosestSnapPoint(this.currentHeight);
-        this.element.style.height = `${snapHeight}px`;
+            // Snap to the closest snap point after the swipe ends
+            const snapHeight = this.getClosestSnapPoint(this.currentHeight);
+            this.element.style.height = `${snapHeight}px`;
+        }
 
-        // Re-enable transition after snapping to ensure smooth effect when resizing again
-        this.element.style.transition = `height ${this.transitionDuration} ease`;
+        // Reset dragging state
+        this.isDragging = false;
     }
 
     handleTouchMoveOnElement(e) {

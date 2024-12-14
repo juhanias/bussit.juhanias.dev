@@ -1,4 +1,5 @@
 var activelySelectedStop = null;
+var isStopDisplayInDetailedScheduleMode = false;
 
 function hideStopAlertContainer() {
     $('#alertTitle').text();
@@ -35,7 +36,7 @@ function openStopDisplay(stopId) {
         $('#locateMeButton').css('bottom', 'calc(45% + 25px)');
     });
 
-    updateStopDisplayScheduleInformation(stopId);
+    updateStopDisplayScheduleInformation(stopId, isStopDisplayInDetailedScheduleMode);
 }
 
 function getStopIdCurrentlyInFocus() {
@@ -73,85 +74,131 @@ function removeStopActiveSelection() {
     }));
 }
 
-function updateStopDisplayScheduleInformation(stopId) {
-    getStopLiveDetails(stopId)
-        .then(stopLiveDetails => {
-            console.log("[stop] Live details for stop:", stopLiveDetails);
+function disableDetailedStopDisplayMode(event) {
+    console.log("[stop] Disabling detailed stop display mode!", event);
+    event.stopPropagation();
+    isStopDisplayInDetailedScheduleMode = false;
 
-            $('#stopLines').empty();
-            var placedLines = [];
-        
-            // Check if stop has active alerts
-            if (stopLiveDetails.alerts && stopLiveDetails.alerts.length > 0) {
-                setStopAlertDetails(stopLiveDetails.alerts[0]);
-
-                // run after 1s
-                setTimeout(() => {
-                    showStopAlertDetails();
-                }, 100);
-            } else {
-                hideStopAlertContainer();
+    $('#stopLines').css('opacity', '0');
+    
+    setTimeout(() => {
+        updateStopDisplayScheduleInformation(getStopIdCurrentlyInFocus(), isStopDisplayInDetailedScheduleMode)
+            .then(() => {
+                $('#stopLines').css('opacity', '1');
             }
+        );
+    }, 250);
+}
 
-            $('#stopLines').append(`
-                <i style="color: snow">Ladataan...</i>
-            `);
+function formatTime(seconds) {
+    if (seconds < 60) {
+      return `${seconds}s`;
+    }
+  
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+  
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+  
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+  
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+}
 
-            if (stopLiveDetails.result.length === 0) {
+async function updateStopDisplayScheduleInformation(stopId, showFullList = false) {
+    return new Promise((resolve, reject) => {
+        console.log("[stop] Updating stop display schedule information for stop:", stopId);
+        getStopLiveDetails(stopId)
+            .then(stopLiveDetails => {
+                console.log("[stop] Live details for stop:", stopLiveDetails);
+
                 $('#stopLines').empty();
+                var placedLines = [];
+            
+                // Check if stop has active alerts
+                if (stopLiveDetails.alerts && stopLiveDetails.alerts.length > 0) {
+                    setStopAlertDetails(stopLiveDetails.alerts[0]);
+
+                    // run after 1s
+                    setTimeout(() => {
+                        showStopAlertDetails();
+                    }, 100);
+                } else {
+                    hideStopAlertContainer();
+                }
+
                 $('#stopLines').append(`
-                    <i style="color: snow">Ei lähteviä linjoja seuraavien tuntien aikana.</i>
+                    <i style="color: snow">Ladataan...</i>
                 `);
-                return;
-            } else {
-                $('#stopLines').empty();
-            }
 
-            stopLiveDetails.result.forEach(element => {
-                console.log("[stop] Line:", element);
-
-                if (placedLines.includes(element.lineref)) {
+                if (stopLiveDetails.result.length === 0) {
+                    $('#stopLines').empty();
+                    $('#stopLines').append(`
+                        <i style="color: snow">Ei lähteviä linjoja seuraavien tuntien aikana.</i>
+                    `);
                     return;
+                } else {
+                    $('#stopLines').empty();
                 }
 
-                placedLines.push(element.lineref);
-                const estimatedArrivalDate = new Date(element.expecteddeparturetime * 1000);
-                const estimatedArrivalMinutes = Math.floor((estimatedArrivalDate - new Date()) / 60000);
-                const nextLine = stopLiveDetails.result.find(line => line.lineref === element.lineref && line.expecteddeparturetime > element.expecteddeparturetime);
-
-                var nextEstimatedArrivalDate;
-                var nextEstimatedArrivalMinutes;
-
-                if (nextLine) {
-                    nextEstimatedArrivalDate = new Date(nextLine.expecteddeparturetime * 1000);
-                    nextEstimatedArrivalMinutes = Math.floor((nextEstimatedArrivalDate - new Date()) / 60000);
+                if (isStopDisplayInDetailedScheduleMode) {
+                    $('#stopLines').append(`
+                        <div style="margin-bottom: 5%;"><p style="color: snow; margin-top: 0;">Näytetään kaikki pysäkkiaikataulut</p><a href="#" id="disableDetailedStopDisplayMode" style="color: snow !important;">Takaisin yksityiskohtaiseen tilaan</a></div>
+                    `);
                 }
 
-                const isLate = estimatedArrivalMinutes < 0;
+                stopLiveDetails.result.forEach(element => {
+                    console.log("[stop] Line:", element);
 
-                // Some lines don't include this, others do?
-                const tripRef = stopLiveDetails.result.find(line => line.__tripref !== undefined).__tripref;
+                    if (placedLines.includes(element.lineref) && !showFullList) {
+                        return;
+                    }
 
-                $('#stopLines').append(`
-                    <div class="stopLine" data-lineref="${element.lineref}" data-tripref="${tripRef}">
-                        <div class="stopLineId">${element.lineref}</div>
-                        <div class="stopLineMetaData">
-                            <div class="stopLineDestination">${element.destinationdisplay}</div>
-                            <div class="stopLineBadges">
-                                <span class="stopLineBadge ${isLate ? 'late' : ''}" data-estimated-departure="${estimatedArrivalDate.getTime()}" data-display-type="relative" data-indicator="next">
-                                    ${isLate ? '' : '~'}${estimatedArrivalMinutes}m
-                                </span>
-                                ${nextEstimatedArrivalMinutes ? `
-                                <span class="stopLineBadge" data-next-estimated-departure="${nextEstimatedArrivalDate.getTime()}" data-display-type="relative" data-indicator="after-next">
-                                    Seuraava: ~${nextEstimatedArrivalMinutes}m
-                                </span>` : ''}
+                    placedLines.push(element.lineref);
+                    const estimatedArrivalDate = new Date(element.expecteddeparturetime * 1000);
+                    const estimatedArrivalMinutes = formatTime(Math.floor((estimatedArrivalDate - new Date()) / 60000) * 60);
+                    const nextLine = stopLiveDetails.result.find(line => line.lineref === element.lineref && line.expecteddeparturetime > element.expecteddeparturetime);
+
+                    var nextEstimatedArrivalDate;
+                    var nextEstimatedArrivalMinutes;
+
+                    if (nextLine && !showFullList) {
+                        nextEstimatedArrivalDate = new Date(nextLine.expecteddeparturetime * 1000);
+                        nextEstimatedArrivalMinutes = formatTime(Math.floor((nextEstimatedArrivalDate - new Date()) / 60000) * 60);
+                    }
+
+                    const isLate = estimatedArrivalMinutes < 0;
+
+                    // Some lines don't include this, others do?
+                    const tripRef = stopLiveDetails.result.find(line => line.__tripref !== undefined).__tripref;
+
+                    $('#stopLines').append(`
+                        <div class="stopLine" data-lineref="${element.lineref}" data-tripref="${tripRef}">
+                            <div class="stopLineId">${element.lineref}</div>
+                            <div class="stopLineMetaData">
+                                <div class="stopLineDestination">${element.destinationdisplay}</div>
+                                <div class="stopLineBadges">
+                                    <span class="stopLineBadge ${isLate ? 'late' : ''}" data-estimated-departure="${estimatedArrivalDate.getTime()}" data-display-type="relative" data-indicator="next">
+                                        ${isLate ? '' : '~'}${estimatedArrivalMinutes}
+                                    </span>
+                                    ${nextEstimatedArrivalMinutes ? `
+                                    <span class="stopLineBadge" data-next-estimated-departure="${nextEstimatedArrivalDate.getTime()}" data-display-type="relative" data-indicator="after-next">
+                                        Seuraava: ~${nextEstimatedArrivalMinutes}
+                                    </span>` : ''}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `);
-            });
-        }
-    );
+                    `);
+                });
+
+                console.log("[stop] Updated stop display schedule information for stop:", stopId);
+                resolve();
+            }
+        );
+    });
 }
 
 $(document).on('click', '.stopLineBadge', function (event) {
@@ -238,9 +285,34 @@ $(document).on('click', '.stopLine', function (event) {
         });
 });
 
-setInterval(() => {
+$(document).on('dblclick', '#stopDisplayHeaderMainInfo', function () {
+    console.log("[stop] Double clicked stop display header main info!");
+
+    if (isStopDisplayInDetailedScheduleMode) {
+        return
+    }
+
+    isStopDisplayInDetailedScheduleMode = true;
+    $('#stopLines').css('opacity', '0');
+    $('#stopDisplayContainer').css('transition', 'all 0.5s');
+    $('#stopDisplayContainer').css('height', '90%');
+
+    setTimeout(() => {
+        updateStopDisplayScheduleInformation(getStopIdCurrentlyInFocus(), isStopDisplayInDetailedScheduleMode)
+            .then(() => {
+                $('#stopLines').css('opacity', '1');
+                $('#stopDisplayContainer').css('transition', 'none');
+            });
+    }, 250);
+});
+
+$(document).on('click', '#disableDetailedStopDisplayMode', function () {
+    disableDetailedStopDisplayMode(event);
+});
+
+setInterval(async () => {
     // Update the stop display schedules every 30 seconds if a stop is actively selected
     if (activelySelectedStop) {
-        updateStopDisplayScheduleInformation(activelySelectedStop);
+        await updateStopDisplayScheduleInformation(activelySelectedStop, isStopDisplayInDetailedScheduleMode);
     }
 }, 30 * 1000);
